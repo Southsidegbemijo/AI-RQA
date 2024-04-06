@@ -76,7 +76,7 @@ def main():
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 )
 
-                st.success("File has been modified and downloaded successfully!")
+                st.success("File has been modified , click the button above 👆 to download!")
 
         except Exception as e:
             st.error(f"An error occurred: {e}")

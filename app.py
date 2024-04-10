@@ -19,19 +19,7 @@ def modify_excel(df):
     new_df.columns = new_header
     new_df.reset_index(drop=True, inplace=True)
 
-    chosen_cols = ['Participants',
-                   'Provider characteristcs',
-                   'Health System characteristics (academics; bed capacity also)',
-                   'comparision of LUS with CXR and CT',
-                   'Value equation: quality/cost/efficiency/patient satisfaction (Hosp leaders-background for implementation)',
-                   'Clinical utility & efficiency-Provider perspective',
-                   'Patient/Physican interaction in LUS',
-                   'Workflow (with subcoding [bolded]: access equipment, order vs encounter-based; uploading & saving images; type of equipment.  End user need to acquire and use',
-                   'training',
-                   'credientialing /quality assurance infrastructure',
-                   'Finanicial Impact'
-                   ]
-
+    chosen_cols =  new_df.columns[:11]
     new_df = new_df[chosen_cols]
 
     for index, row in new_df.iterrows():

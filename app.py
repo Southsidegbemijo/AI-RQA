@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import io
 
-survey_df = pd.read_csv('SURVEY G1-G7 in new docx format.csv', encoding='utf-8')
+survey_df = pd.read_csv('Survey Table G1-G7 as  docx.csv', encoding='utf-8')
 
 
 def check_input(input_text):

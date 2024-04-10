@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-df = pd.read_csv('SURVEY G1-G7 in new docx format.csv')
+df = pd.read_csv('SURVEY G1-G7 as docx.csv')
 
 
 # Streamlit app

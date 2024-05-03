@@ -2,3 +2,5 @@
 numpy 
 pandas
 openpyxl
+python-docx
+transformers[torch]

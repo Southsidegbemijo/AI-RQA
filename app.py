@@ -24,7 +24,7 @@ TOP_LEVELS = [
     "Implementation and Sustainability infrastructure- facilitating use of the intervention; -ensuring adaptability of protocols that fit the multilevel context"
 ]
 
-model_path  = '/content/drive/MyDrive/Kalu+Deola/NLP PROJECT/NLP/interview_classifier'
+model_path  = 'eskayML/interview_classifier' # directly from huggingface
 
 tokenizer  =  AutoTokenizer.from_pretrained('distilbert-base-uncased')
 

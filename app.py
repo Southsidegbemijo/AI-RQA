@@ -83,6 +83,7 @@ COLOR_LIST = [WD_COLOR_INDEX.DARK_BLUE,
               WD_COLOR_INDEX.DARK_YELLOW,
               ]
 
+
 low_color_dict = dict(zip(LABELS, COLOR_LIST))
 high_color_dict = dict(zip(TOP_LEVELS, [RGBColor(255, 0, 0),RGBColor(0, 255, 0),RGBColor(0, 0, 255)])) # red, green and blue for the top 3 levels
 
@@ -93,11 +94,13 @@ def classify(paragraph):
 
 def apply_low_highlight(paragraph, label):
     color_index = low_color_dict.get(label, WD_COLOR_INDEX.AUTO)
-    run.font.highlight_color = color_index
+    for run in paragraph.runs:
+        run.font.highlight_color = color_index
 
 def apply_high_highlight(paragraph,label):
     color_index = high_color_dict.get(label, RGBColor(0,0,0))
-    run.font.color.rgb = color_index
+    for run in paragraph.runs:
+        run.font.color.rgb = color_index
 
 
 def main():

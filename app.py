@@ -42,6 +42,15 @@ impl_sust_infra : List[str] = [
 ]
 
 
+def get_binary_file_downloader_html(bin_file, file_label='File'):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    bin_str = base64.b64encode(data).decode()
+
+    href = f'<a href="data:file/octet-stream;base64,{bin_str}" download="{bin_file}">{file_label}</a>'
+    return href
+
+
 
 def classify_new_text(text):
   classifier = pipeline('text-classification', model_path, tokenizer = tokenizer)

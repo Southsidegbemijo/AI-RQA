@@ -86,7 +86,7 @@ high_color_dict = dict(zip(TOP_LEVELS, [RGBColor(255, 0, 0),RGBColor(0, 255, 0),
 def classify(paragraph, model_choice:str = MODEL_CHOICE):
     output = classify_new_text(paragraph)
 
-    thres_zip = dict(zip(['Distilbert', 'Electra', 'Phi2'], [0.5,0.2,0.5]))
+    thres_zip = dict(zip(['Distilbert', 'Electra', 'Phi2'], [0.5,0.15,0.5]))
 
     return output[0] if output[0]['score'] > thres_zip[model_choice] else None
 

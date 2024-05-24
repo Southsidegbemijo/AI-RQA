@@ -4,40 +4,42 @@ from docx.enum.text import WD_COLOR_INDEX
 from docx.shared import RGBColor
 from transformers import AutoTokenizer , AutoModelForSequenceClassification,pipeline
 import io,base64,re
+import streamlit_pills as stp
 from typing import List
+from stqdm import stqdm
 
 
-LABELS = ['Value equation: quality/cost/efficiency/patient satisfaction',
- 'credientialing /quality assurance infrastructure',
+
+LABELS = ['Value equation: quality/cost/efficiency/patient-satisfaction',
+ 'Credentialing / Quality Assurance Infrastructure',
  'Finanicial Impact',
  'Health System Characteristics',
  'Clinical utility & efficiency-Provider perspective',
  'Workflow related problems',
  'Provider characteristcs',
- 'training',
+ 'Training',
  'Patient/Physican interaction in LUS',
  'Imaging modalities in general']
 
 TOP_LEVELS = [
-    "Multi-level organizations Characteristics-creating an environment (infrastructure) for encouraging spread ",
+    "Multi-level organizations Characteristics-creating an environment (infrastructure) for encouraging spread",
     "Multi-level organizations Perspectives/Values -sharing best practices; observing results and adjusting processes accordingly",
     "Implementation and Sustainability infrastructure- facilitating use of the intervention; -ensuring adaptability of protocols that fit the multilevel context"
 ]
 
 
-model_path  = 'eskayML/interview_classifier' # directly from huggingface
-tokenizer  =  AutoTokenizer.from_pretrained('distilbert-base-uncased')
+
 
 multi_level_org_char: List[str] = ['Provider characteristcs', "Health System Characteristics"]
 multi_level_org_perspect: List[str] = [ "Imaging modalities in general",
-                            "Value equation: quality/cost/efficiency/patient satisfaction",
+                            'Value equation: quality/cost/efficiency/patient-satisfaction',
                             "Clinical utility & efficiency-Provider perspective",
                             "Patient/Physican interaction in LUS",
                             'Workflow related problems']
 
-impl_sust_infra : List[str] = [
-    "training",
-    "credientialing /quality assurance infrastructure",
+impl_sust_infra: List[str] = [
+    "Training",
+    'Credentialing / Quality Assurance Infrastructure',
     "Finanicial Impact",
 ]
 
@@ -67,7 +69,7 @@ def classify_new_text(text):
 
 COLOR_LIST = [WD_COLOR_INDEX.DARK_BLUE,
               WD_COLOR_INDEX.RED,
-              WD_COLOR_INDEX.TEAL,
+              WD_COLOR_INDEX.DARK_YELLOW,
               WD_COLOR_INDEX.TURQUOISE,
               WD_COLOR_INDEX.VIOLET,
               WD_COLOR_INDEX.YELLOW,
@@ -75,7 +77,6 @@ COLOR_LIST = [WD_COLOR_INDEX.DARK_BLUE,
               WD_COLOR_INDEX.DARK_RED,
               WD_COLOR_INDEX.GRAY_50,
               WD_COLOR_INDEX.GREEN,
-              WD_COLOR_INDEX.DARK_YELLOW,
               ]
 
 low_color_dict = dict(zip(LABELS, COLOR_LIST))
@@ -94,7 +95,26 @@ def apply_high_highlight(paragraph,label):
     color_index = high_color_dict.get(label, RGBColor(0,0,0))
     run.font.color.rgb = color_index
 
+
+
+
+
 st.title("Healthcare Document Classification and Highlighting")
+
+MODEL_CHOICE = stp.pills('Choose the model to use', ['Distilbert', 'Electra', 'Phi2'])
+
+MODEL_CHOICE_TO_PATH_MAPPING = {
+    "Distilbert":'eskayML/interview_classifier',
+    "Electra":'eskayML/interview_bot',
+    "Phi2":'',
+}
+
+
+
+
+model_path  = MODEL_CHOICE_TO_PATH_MAPPING[MODEL_CHOICE]
+tokenizer  =  AutoTokenizer.from_pretrained(model_path)
+
 
 # Load the document
 file_upload = st.file_uploader("Upload a Word document (.docx)", type=["docx"])
@@ -107,7 +127,7 @@ if file_upload:
     low_label_counts = {label: 0 for label in low_color_dict.keys()}
 
     # Process paragraphs and apply highlights to chosen sentences
-    for paragraph in doc.paragraphs:
+    for paragraph in stqdm(doc.paragraphs, desc="Classifying Sentences..."):
         sentences = re.split(r'\.\s*', paragraph.text)
         for sentence in sentences:
             words = sentence.split()
@@ -124,13 +144,13 @@ if file_upload:
                     apply_low_highlight(run, low_label)
 
             
-    legend_paragraph = doc.add_paragraph("LEGEND : TOP LEVEL COLOR IDENTIFICATION")
+    legend_paragraph = doc.add_paragraph("LEGEND: TOP LEVEL COLOR IDENTIFICATION")
     for label, color_index in high_color_dict.items():
         run = legend_paragraph.add_run()
         run.text = f"\n{label}:"
         run.font.color.rgb = color_index
 
-    legend_paragraph = doc.add_paragraph("\nLEGEND : SUB LEVEL COLOR IDENTIFICATION")
+    legend_paragraph = doc.add_paragraph("\nLEGEND: SUB LEVEL COLOR IDENTIFICATION")
     for label, color_index in low_color_dict.items():
         run = legend_paragraph.add_run()
         run.text = f"\n{label}:"
@@ -172,6 +192,7 @@ if file_upload:
     output_file = io.BytesIO()
     doc.save(output_file)
     output_file.seek(0)
+
 
     # Provide a download link for the output file
     st.markdown(get_binary_file_downloader_html(output_file, file_label="Download Processed Document"), unsafe_allow_html=True)

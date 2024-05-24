@@ -53,7 +53,7 @@ def get_binary_file_downloader_html(bin_file, file_label='File'):
 
 
 
-def classify_new_text(text):
+def classify_new_text(text:str ):
   classifier = pipeline('text-classification', model_path, tokenizer = tokenizer)
   output = classifier(text)
 
@@ -83,9 +83,12 @@ low_color_dict = dict(zip(LABELS, COLOR_LIST))
 high_color_dict = dict(zip(TOP_LEVELS, [RGBColor(255, 0, 0),RGBColor(0, 255, 0),RGBColor(0, 0, 255)])) # red, green and blue for the top 3 levels
 
 
-def classify(paragraph):
+def classify(paragraph, model_choice:str = MODEL_CHOICE):
     output = classify_new_text(paragraph)
-    return output[0] if output[0]['score'] > 0.5 else None
+
+    thres_zip = dict(zip(['Distilbert', 'Electra', 'Phi2'], [0.5,0.2,0.5]))
+
+    return output[0] if output[0]['score'] > thres_zip[model_choice] else None
 
 def apply_low_highlight(paragraph, label):
     color_index = low_color_dict.get(label, WD_COLOR_INDEX.AUTO)

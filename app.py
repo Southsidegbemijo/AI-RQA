@@ -176,11 +176,18 @@ if file_upload:
 
     # Calculate the percentage of occurrence for the high-level label
     total_high_labels = sum(high_label_counts.values())
-    percentage_high_label = (high_label_counts[max_high_label] / total_high_labels) * 100
+    try:
+        percentage_high_label = (high_label_counts[max_high_label] / total_high_labels) * 100
+    except ZeroDivisionError:
+        percentage_high_label = 0
 
     # Calculate the percentage of occurrence for the low-level label
     total_low_labels = sum(low_label_counts.values())
-    percentage_low_label = (low_label_counts[max_low_label] / total_low_labels) * 100
+    try:
+        percentage_low_label = (low_label_counts[max_low_label] / total_low_labels) * 100
+    except ZeroDivisionError:
+        percentage_low_label = 0
+
 
     # Add summary about the label that occurred the most
     summary_paragraph.add_run("\nMost Occurred High-level Label:\n").bold = True

@@ -43,11 +43,10 @@ impl_sust_infra : List[str] = [
 
 
 def get_binary_file_downloader_html(bin_file, file_label='File'):
-    with open(bin_file, 'rb') as f:
-        data = f.read()
-    bin_str = base64.b64encode(data).decode()
-
-    href = f'<a href="data:file/octet-stream;base64,{bin_str}" download="{bin_file}">{file_label}</a>'
+    bin_file.seek(0)
+    encoded_file = base64.b64encode(bin_file.read()).decode()
+    bin_file.close()
+    href = f'<a href="data:application/octet-stream;base64,{encoded_file}" download="processed_document.docx">{file_label}</a>'
     return href
 
 
@@ -95,7 +94,7 @@ def apply_high_highlight(paragraph,label):
     color_index = high_color_dict.get(label, RGBColor(0,0,0))
     run.font.color.rgb = color_index
 
-st.title("Interview Text Classification and Highlighting")
+st.title("Healthcare Document Classification and Highlighting")
 
 # Load the document
 file_upload = st.file_uploader("Upload a Word document (.docx)", type=["docx"])
@@ -125,13 +124,13 @@ if file_upload:
                     apply_low_highlight(run, low_label)
 
             
-    legend_paragraph = doc.add_paragraph("LEGEND::=> TOP LEVEL COLOR IDENTIFICATION")
+    legend_paragraph = doc.add_paragraph("LEGEND : TOP LEVEL COLOR IDENTIFICATION")
     for label, color_index in high_color_dict.items():
         run = legend_paragraph.add_run()
         run.text = f"\n{label}:"
         run.font.color.rgb = color_index
 
-    legend_paragraph = doc.add_paragraph("\nLEGEND::=> SUB LEVEL COLOR IDENTIFICATION")
+    legend_paragraph = doc.add_paragraph("\nLEGEND : SUB LEVEL COLOR IDENTIFICATION")
     for label, color_index in low_color_dict.items():
         run = legend_paragraph.add_run()
         run.text = f"\n{label}:"

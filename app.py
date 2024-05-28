@@ -83,7 +83,7 @@ low_color_dict = dict(zip(LABELS, COLOR_LIST))
 high_color_dict = dict(zip(TOP_LEVELS, [RGBColor(255, 0, 0),RGBColor(0, 255, 0),RGBColor(0, 0, 255)])) # red, green and blue for the top 3 levels
 
 
-def classify(paragraph, model_choice:str = MODEL_CHOICE):
+def classify(paragraph, model_choice):
     output = classify_new_text(paragraph)
 
     thres_zip = dict(zip(['Distilbert', 'Electra', 'Phi2'], [0.5,0.15,0.5]))
@@ -104,12 +104,12 @@ def apply_high_highlight(paragraph,label):
 
 st.title("Healthcare Document Classification and Highlighting")
 
-MODEL_CHOICE = stp.pills('Choose the model to use', ['Distilbert', 'Electra', 'Phi2'])
+MODEL_CHOICE = stp.pills('Choose the model to use', ['Distilbert', 'Electra'])
 
 MODEL_CHOICE_TO_PATH_MAPPING = {
     "Distilbert":'eskayML/interview_classifier',
     "Electra":'eskayML/interview_bot',
-    "Phi2":'',
+    # "Phi2":'',
 }
 
 
@@ -136,7 +136,7 @@ if file_upload:
             words = sentence.split()
             if len(words) > 10:  # Only consider sentences with more than 10 words
                 chosen_sentence = ' '.join(words)
-                label = classify(chosen_sentence)
+                label = classify(chosen_sentence, model_path)
                 if label:
                     high_label = label['top level']
                     low_label = label['label']

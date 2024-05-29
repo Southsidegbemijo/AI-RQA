@@ -104,15 +104,18 @@ def apply_high_highlight(paragraph,label):
 st.title("Healthcare Document Classification and Highlighting")
 
 
-MODEL_CHOICE = stp.pills('Choose the model to use', ['Distilbert', 'Electra'])
+MODEL_CHOICE = stp.pills('Choose the model to use', ['Distilbert', 'Electra'], index=None)
 
+if MODEL_CHOICE=='Distilbert':
+    with st.spinner("Loading bert weights..."):
+        bert_model = pipeline('text-classification', 'eskayML/interview_classifier', tokenizer = AutoTokenizer.from_pretrained('eskayML/interview_classifier'))
 
-with st.spinner("Loading model weights..."):
-    bert_model = pipeline('text-classification', 'eskayML/interview_classifier', tokenizer = AutoTokenizer.from_pretrained('eskayML/interview_classifier'))
+    
+    
+elif MODEL_CHOICE=='Electra':
+    with st.spinner("Loading electra weights..."):
+        electra_model = pipeline('text-classification', 'eskayML/interview_bot', tokenizer = AutoTokenizer.from_pretrained('eskayML/interview_bot'))
 
-    electra_model = pipeline('text-classification', 'eskayML/interview_bot', tokenizer = AutoTokenizer.from_pretrained('eskayML/interview_bot'))
-
-st.success('Loaded model weights!')
 
 def classify(paragraph, MODEL_CHOICE):
     output = classify_new_text(paragraph, bert_model) if MODEL_CHOICE == 'Distilbert' else classify_new_text(paragraph, electra_model)
@@ -127,6 +130,11 @@ def classify(paragraph, MODEL_CHOICE):
 file_upload = st.file_uploader("Upload a Word document (.docx)", type=["docx"])
 
 if file_upload:
+
+    if not MODEL_CHOICE:
+        st.error('No model selected!!')
+        exit()
+
     uploaded_file = file_upload.name
     doc = Document(file_upload)
 
@@ -135,11 +143,13 @@ if file_upload:
 
     # Process paragraphs and apply highlights to chosen sentences
     for paragraph in stqdm(doc.paragraphs, desc="Classifying Sentences..."):
+        
         sentences = re.split(r'\.\s*', paragraph.text)
         for sentence in sentences:
             words = sentence.split()
             if len(words) > 10:  # Only consider sentences with more than 10 words
                 chosen_sentence = ' '.join(words)
+                
                 label = classify(chosen_sentence, MODEL_CHOICE)
                 if label:
                     high_label = label['top level']

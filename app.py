@@ -7,7 +7,7 @@ import io,base64,re
 import streamlit_pills as stp
 from typing import List
 from stqdm import stqdm
-
+import time
 
 
 LABELS = ['Value equation: quality/cost/efficiency/patient-satisfaction',
@@ -108,12 +108,14 @@ MODEL_CHOICE = stp.pills('Choose the model to use', ['Distilbert', 'Electra'], i
 
 if MODEL_CHOICE=='Distilbert':
     with st.spinner("Loading bert weights..."):
+        time.sleep(1)
         bert_model = pipeline('text-classification', 'eskayML/interview_classifier', tokenizer = AutoTokenizer.from_pretrained('eskayML/interview_classifier'))
 
     
     
 elif MODEL_CHOICE=='Electra':
     with st.spinner("Loading electra weights..."):
+        time.sleep(1)
         electra_model = pipeline('text-classification', 'eskayML/interview_bot', tokenizer = AutoTokenizer.from_pretrained('eskayML/interview_bot'))
 
 

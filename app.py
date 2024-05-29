@@ -53,18 +53,23 @@ def get_binary_file_downloader_html(bin_file, file_label='File'):
 
 
 
-def classify_new_text(text:str ):
-  classifier = pipeline('text-classification', model_path, tokenizer = tokenizer)
-  output = classifier(text)
+def classify_new_text(text:str , model_path):
+    
+    # bert_model = pipeline('text-classification', 'eskayML/interview_classifier', tokenizer = AutoTokenizer.from_pretrained('eskayML/interview_classifier'))
 
-  if output[0]['label'] in multi_level_org_char:
-    output[0]['top level'] = TOP_LEVELS[0]
-  elif output[0]['label'] in multi_level_org_perspect:
-    output[0]['top level'] = TOP_LEVELS[1]
-  elif output[0]['label'] in impl_sust_infra:
-    output[0]['top level'] = TOP_LEVELS[2]
+    # electra_model = pipeline('text-classification', 'eskayML/interview_bot', tokenizer = AutoTokenizer.from_pretrained('eskayML/interview_bot'))
 
-  return output
+    classifier = model_path
+    output = classifier(text)
+
+    if output[0]['label'] in multi_level_org_char:
+        output[0]['top level'] = TOP_LEVELS[0]
+    elif output[0]['label'] in multi_level_org_perspect:
+        output[0]['top level'] = TOP_LEVELS[1]
+    elif output[0]['label'] in impl_sust_infra:
+        output[0]['top level'] = TOP_LEVELS[2]
+
+    return output[0]
 
 
 COLOR_LIST = [WD_COLOR_INDEX.DARK_BLUE,
@@ -83,12 +88,6 @@ low_color_dict = dict(zip(LABELS, COLOR_LIST))
 high_color_dict = dict(zip(TOP_LEVELS, [RGBColor(255, 0, 0),RGBColor(0, 255, 0),RGBColor(0, 0, 255)])) # red, green and blue for the top 3 levels
 
 
-def classify(paragraph, model_choice):
-    output = classify_new_text(paragraph)
-
-    thres_zip = dict(zip(['Distilbert', 'Electra', 'Phi2'], [0.5,0.15,0.5]))
-
-    return output[0] if output[0]['score'] > thres_zip[model_choice] else None
 
 def apply_low_highlight(paragraph, label):
     color_index = low_color_dict.get(label, WD_COLOR_INDEX.AUTO)
@@ -104,20 +103,25 @@ def apply_high_highlight(paragraph,label):
 
 st.title("Healthcare Document Classification and Highlighting")
 
+
 MODEL_CHOICE = stp.pills('Choose the model to use', ['Distilbert', 'Electra'])
 
-MODEL_CHOICE_TO_PATH_MAPPING = {
-    "Distilbert":'eskayML/interview_classifier',
-    "Electra":'eskayML/interview_bot',
-    # "Phi2":'',
-}
+
+
+bert_model = pipeline('text-classification', 'eskayML/interview_classifier', tokenizer = AutoTokenizer.from_pretrained('eskayML/interview_classifier'))
+
+electra_model = pipeline('text-classification', 'eskayML/interview_bot', tokenizer = AutoTokenizer.from_pretrained('eskayML/interview_bot'))
 
 
 
+def classify(paragraph, MODEL_CHOICE):
+    output = classify_new_text(paragraph, bert_model) if MODEL_CHOICE == 'Distilbert' else classify_new_text(paragraph, electra_model)
 
-model_path  = MODEL_CHOICE_TO_PATH_MAPPING[MODEL_CHOICE]
-tokenizer  =  AutoTokenizer.from_pretrained(model_path)
+    thres_zip = dict(zip(['Distilbert', 'Electra'], [0.9,0.3]))
 
+    if output['score'] > thres_zip[MODEL_CHOICE]:
+        return output
+    
 
 # Load the document
 file_upload = st.file_uploader("Upload a Word document (.docx)", type=["docx"])
@@ -136,7 +140,7 @@ if file_upload:
             words = sentence.split()
             if len(words) > 10:  # Only consider sentences with more than 10 words
                 chosen_sentence = ' '.join(words)
-                label = classify(chosen_sentence, model_path)
+                label = classify(chosen_sentence, MODEL_CHOICE)
                 if label:
                     high_label = label['top level']
                     low_label = label['label']

@@ -107,10 +107,10 @@ st.title("Healthcare Document Classification and Highlighting")
 MODEL_CHOICE = stp.pills('Choose the model to use', ['Distilbert', 'Electra'])
 
 
+with st.spinner("Loading model weights...")
+    bert_model = pipeline('text-classification', 'eskayML/interview_classifier', tokenizer = AutoTokenizer.from_pretrained('eskayML/interview_classifier'))
 
-bert_model = pipeline('text-classification', 'eskayML/interview_classifier', tokenizer = AutoTokenizer.from_pretrained('eskayML/interview_classifier'))
-
-electra_model = pipeline('text-classification', 'eskayML/interview_bot', tokenizer = AutoTokenizer.from_pretrained('eskayML/interview_bot'))
+    electra_model = pipeline('text-classification', 'eskayML/interview_bot', tokenizer = AutoTokenizer.from_pretrained('eskayML/interview_bot'))
 
 
 

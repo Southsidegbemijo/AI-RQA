@@ -10,13 +10,13 @@ from stqdm import stqdm
 import time
 
 
-LABELS = ['Value equation: quality/cost/efficiency/patient-satisfaction',
+LABELS = ['Value equation',
  'Credentialing / Quality Assurance Infrastructure',
  'Finanicial Impact',
  'Health System Characteristics',
  'Clinical utility & efficiency-Provider perspective',
  'Workflow related problems',
- 'Provider characteristcs',
+ 'Provider Characteristics',
  'Training',
  'Patient/Physican interaction in LUS',
  'Imaging modalities in general']
@@ -28,11 +28,9 @@ TOP_LEVELS = [
 ]
 
 
-
-
-multi_level_org_char: List[str] = ['Provider characteristcs', "Health System Characteristics"]
+multi_level_org_char: List[str] = ['Provider characteristics', "Health System Characteristics"]
 multi_level_org_perspect: List[str] = [ "Imaging modalities in general",
-                            'Value equation: quality/cost/efficiency/patient-satisfaction',
+                            'Value equation',
                             "Clinical utility & efficiency-Provider perspective",
                             "Patient/Physican interaction in LUS",
                             'Workflow related problems']
@@ -42,6 +40,8 @@ impl_sust_infra: List[str] = [
     'Credentialing / Quality Assurance Infrastructure',
     "Finanicial Impact",
 ]
+
+
 
 
 def get_binary_file_downloader_html(bin_file, file_label='File'):
@@ -54,11 +54,6 @@ def get_binary_file_downloader_html(bin_file, file_label='File'):
 
 
 def classify_new_text(text:str , model_path):
-    
-    # bert_model = pipeline('text-classification', 'eskayML/interview_classifier', tokenizer = AutoTokenizer.from_pretrained('eskayML/interview_classifier'))
-
-    # electra_model = pipeline('text-classification', 'eskayML/interview_bot', tokenizer = AutoTokenizer.from_pretrained('eskayML/interview_bot'))
-
     classifier = model_path
     output = classifier(text)
 
@@ -116,7 +111,7 @@ if MODEL_CHOICE=='Distilbert':
 elif MODEL_CHOICE=='Electra':
     with st.spinner("Loading electra weights..."):
         time.sleep(1)
-        electra_model = pipeline('text-classification', 'eskayML/interview_bot', tokenizer = AutoTokenizer.from_pretrained('eskayML/interview_bot'))
+        electra_model = pipeline('text-classification', 'eskayML/interview_electra', tokenizer = AutoTokenizer.from_pretrained('eskayML/interview_electra'))
 
 
 def classify(paragraph, MODEL_CHOICE):

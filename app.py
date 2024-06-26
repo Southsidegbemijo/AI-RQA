@@ -101,6 +101,8 @@ st.title("Healthcare Document Classification and Highlighting")
 
 MODEL_CHOICE = stp.pills('Choose the model to use', ['Distilbert', 'Electra'], index=None)
 
+THRESHOLD = st.slider('Set a Minimum Threshold For the model Confidence', min_value = 0.1, max_value = 0.5, step = 0.05, value = 0.15)
+
 if MODEL_CHOICE=='Distilbert':
     with st.spinner("Loading bert weights..."):
         time.sleep(1)
@@ -117,9 +119,7 @@ elif MODEL_CHOICE=='Electra':
 def classify(paragraph, MODEL_CHOICE):
     output = classify_new_text(paragraph, bert_model) if MODEL_CHOICE == 'Distilbert' else classify_new_text(paragraph, electra_model)
 
-    thres_zip = dict(zip(['Distilbert', 'Electra'], [0.5,0.12]))
-
-    if output['score'] > thres_zip[MODEL_CHOICE]:
+    if output['score'] > THRESHOLD:
         return output
     
 

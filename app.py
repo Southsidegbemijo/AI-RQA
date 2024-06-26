@@ -150,6 +150,7 @@ if file_upload:
                 
                 label = classify(chosen_sentence, MODEL_CHOICE)
                 if label:
+                    print(label)
                     high_label = label['top level']
                     low_label = label['label']
                     high_label_counts[high_label] += 1

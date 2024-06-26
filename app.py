@@ -10,6 +10,7 @@ from stqdm import stqdm
 import time
 
 
+
 LABELS = ['Value equation',
  'Credentialing / Quality Assurance Infrastructure',
  'Finanicial Impact',
@@ -20,7 +21,7 @@ LABELS = ['Value equation',
  'Training',
  'Patient/Physican interaction in LUS',
  'Imaging modalities in general']
-
+ 
 TOP_LEVELS = [
     "Multi-level organizations Characteristics-creating an environment (infrastructure) for encouraging spread",
     "Multi-level organizations Perspectives/Values -sharing best practices; observing results and adjusting processes accordingly",
@@ -148,11 +149,11 @@ if file_upload:
             if len(words) > 10:  # Only consider sentences with more than 10 words
                 chosen_sentence = ' '.join(words)
                 
-                label = classify(chosen_sentence, MODEL_CHOICE)
-                if label:
-                    print(label)
-                    high_label = label['top level']
-                    low_label = label['label']
+                prediction = classify(chosen_sentence, MODEL_CHOICE)
+                if prediction:
+                    print(prediction)
+                    high_label = prediction.get('top level')
+                    low_label = prediction.get('label')
                     high_label_counts[high_label] += 1
                     low_label_counts[low_label] += 1
                     run = paragraph.add_run(chosen_sentence)  # Create a new run for the chosen sentence

@@ -21,7 +21,7 @@ LABELS = ['Value equation',
  'Training',
  'Patient/Physican interaction in LUS',
  'Imaging modalities in general']
- 
+
 TOP_LEVELS = [
     "Multi-level organizations Characteristics-creating an environment (infrastructure) for encouraging spread",
     "Multi-level organizations Perspectives/Values -sharing best practices; observing results and adjusting processes accordingly",
@@ -29,7 +29,7 @@ TOP_LEVELS = [
 ]
 
 
-multi_level_org_char: List[str] = ['Provider characteristics', "Health System Characteristics"]
+multi_level_org_char: List[str] = ['Provider Characteristics', "Health System Characteristics"]
 multi_level_org_perspect: List[str] = [ "Imaging modalities in general",
                             'Value equation',
                             "Clinical utility & efficiency-Provider perspective",

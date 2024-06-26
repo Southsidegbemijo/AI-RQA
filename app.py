@@ -117,7 +117,7 @@ elif MODEL_CHOICE=='Electra':
 def classify(paragraph, MODEL_CHOICE):
     output = classify_new_text(paragraph, bert_model) if MODEL_CHOICE == 'Distilbert' else classify_new_text(paragraph, electra_model)
 
-    thres_zip = dict(zip(['Distilbert', 'Electra'], [0.9,0.3]))
+    thres_zip = dict(zip(['Distilbert', 'Electra'], [0.5,0.12]))
 
     if output['score'] > thres_zip[MODEL_CHOICE]:
         return output

@@ -121,6 +121,7 @@ def classify(paragraph, MODEL_CHOICE):
 
     if output['score'] > THRESHOLD:
         return output
+    return None
     
 
 # Load the document

@@ -97,8 +97,7 @@ def apply_high_highlight(paragraph,label):
 
 
 
-st.title("Healthcare Document Classification and Highlighting")
-
+st.title("AI RQA - AI Assisted Rapid Qualitative Analysis for Implementation Science")
 
 MODEL_CHOICE = stp.pills('Choose the model to use', ['Distilbert', 'Electra'], index=None)
 

@@ -1,15 +1,16 @@
+import base64
+import io
+import re
+import time
+from typing import List
+
 import streamlit as st
+import streamlit_pills as stp
 from docx import Document
 from docx.enum.text import WD_COLOR_INDEX
 from docx.shared import RGBColor
-from transformers import AutoTokenizer , AutoModelForSequenceClassification,pipeline
-import io,base64,re
-import streamlit_pills as stp
-from typing import List
 from stqdm import stqdm
-import time
-
-
+from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipeline
 
 LABELS = ['Value equation',
  'Credentialing / Quality Assurance Infrastructure',
@@ -123,100 +124,107 @@ def classify(paragraph, MODEL_CHOICE):
         return output
     return None
     
+password_field = st.text_input("Please enter the  password to be able to  upload a file", type = 'password')
+
 
 # Load the document
-file_upload = st.file_uploader("Upload a Word document (.docx)", type=["docx"])
+if password_field in ['databacked_123', "rqa_password"]:
+    st.success("Authenticated successfully")
+    file_upload = st.file_uploader("Upload a Word document (.docx)", type=["docx"])
 
-if file_upload:
+    if file_upload:
 
-    if not MODEL_CHOICE:
-        st.error('No model selected!!')
-        exit()
+        if not MODEL_CHOICE:
+            st.error('No model selected!!')
+            exit()
 
-    uploaded_file = file_upload.name
-    doc = Document(file_upload)
+        uploaded_file = file_upload.name
+        doc = Document(file_upload)
 
-    high_label_counts = {label: 0 for label in high_color_dict.keys()}
-    low_label_counts = {label: 0 for label in low_color_dict.keys()}
+        high_label_counts = {label: 0 for label in high_color_dict.keys()}
+        low_label_counts = {label: 0 for label in low_color_dict.keys()}
 
-    # Process paragraphs and apply highlights to chosen sentences
-    for paragraph in stqdm(doc.paragraphs, desc="Classifying Sentences..."):
-        
-        sentences = re.split(r'\.\s*', paragraph.text)
-        for sentence in sentences:
-            words = sentence.split()
-            if len(words) > 10:  # Only consider sentences with more than 10 words
-                chosen_sentence = ' '.join(words)
-                
-                prediction = classify(chosen_sentence, MODEL_CHOICE)
-                if prediction:
-                    print(prediction)
-                    high_label = prediction.get('top level')
-                    low_label = prediction.get('label')
-                    high_label_counts[high_label] += 1
-                    low_label_counts[low_label] += 1
-                    run = paragraph.add_run(chosen_sentence)  # Create a new run for the chosen sentence
-                    apply_high_highlight(run, high_label)
-                    apply_low_highlight(run, low_label)
-
+        # Process paragraphs and apply highlights to chosen sentences
+        for paragraph in stqdm(doc.paragraphs, desc="Classifying Sentences..."):
             
-    legend_paragraph = doc.add_paragraph("LEGEND: TOP LEVEL COLOR IDENTIFICATION")
-    for label, color_index in high_color_dict.items():
-        run = legend_paragraph.add_run()
-        run.text = f"\n{label}:"
-        run.font.color.rgb = color_index
+            sentences = re.split(r'\.\s*', paragraph.text)
+            for sentence in sentences:
+                words = sentence.split()
+                if len(words) > 10:  # Only consider sentences with more than 10 words
+                    chosen_sentence = ' '.join(words)
+                    
+                    prediction = classify(chosen_sentence, MODEL_CHOICE)
+                    if prediction:
+                        print(prediction)
+                        high_label = prediction.get('top level')
+                        low_label = prediction.get('label')
+                        high_label_counts[high_label] += 1
+                        low_label_counts[low_label] += 1
+                        run = paragraph.add_run(chosen_sentence)  # Create a new run for the chosen sentence
+                        apply_high_highlight(run, high_label)
+                        apply_low_highlight(run, low_label)
 
-    legend_paragraph = doc.add_paragraph("\nLEGEND: SUB LEVEL COLOR IDENTIFICATION")
-    for label, color_index in low_color_dict.items():
-        run = legend_paragraph.add_run()
-        run.text = f"\n{label}:"
-        run.font.highlight_color  = color_index
+                
+        legend_paragraph = doc.add_paragraph("LEGEND: TOP LEVEL COLOR IDENTIFICATION")
+        for label, color_index in high_color_dict.items():
+            run = legend_paragraph.add_run()
+            run.text = f"\n{label}:"
+            run.font.color.rgb = color_index
 
-
-    # Add summary at the end of the document
-    summary_paragraph = doc.add_paragraph("\n\nSUMMARY:\n")
-
-    summary_paragraph.add_run("\nHigh-level label counts:\n").bold = True
-    for label, count in high_label_counts.items():
-        summary_paragraph.add_run(f"{label}: {count}\n")
-
-
-
-    summary_paragraph.add_run("\nLow-level label counts:\n").bold = True
-    for label, count in low_label_counts.items():
-        summary_paragraph.add_run(f"{label}: {count}\n")
-
-
-    max_high_label = max(high_label_counts, key=high_label_counts.get)
-    max_low_label = max(low_label_counts, key=low_label_counts.get)
-
-    # Calculate the percentage of occurrence for the high-level label
-    total_high_labels = sum(high_label_counts.values())
-    try:
-        percentage_high_label = (high_label_counts[max_high_label] / total_high_labels) * 100
-    except ZeroDivisionError:
-        percentage_high_label = 0
-
-    # Calculate the percentage of occurrence for the low-level label
-    total_low_labels = sum(low_label_counts.values())
-    try:
-        percentage_low_label = (low_label_counts[max_low_label] / total_low_labels) * 100
-    except ZeroDivisionError:
-        percentage_low_label = 0
+        legend_paragraph = doc.add_paragraph("\nLEGEND: SUB LEVEL COLOR IDENTIFICATION")
+        for label, color_index in low_color_dict.items():
+            run = legend_paragraph.add_run()
+            run.text = f"\n{label}:"
+            run.font.highlight_color  = color_index
 
 
-    # Add summary about the label that occurred the most
-    summary_paragraph.add_run("\nMost Occurred High-level Label:\n").bold = True
-    summary_paragraph.add_run(f"{max_high_label}: {percentage_high_label:.2f}%\n")
+        # Add summary at the end of the document
+        summary_paragraph = doc.add_paragraph("\n\nSUMMARY:\n")
 
-    summary_paragraph.add_run("\nMost Occurred Low-level Label:\n").bold = True
-    summary_paragraph.add_run(f"{max_low_label}: {percentage_low_label:.2f}%\n")
-    # Save the document with a new name
-    output_file = io.BytesIO()
-    doc.save(output_file)
-    output_file.seek(0)
+        summary_paragraph.add_run("\nHigh-level label counts:\n").bold = True
+        for label, count in high_label_counts.items():
+            summary_paragraph.add_run(f"{label}: {count}\n")
 
 
-    # Provide a download link for the output file
-    st.markdown(get_binary_file_downloader_html(output_file, file_label="Download Processed Document"), unsafe_allow_html=True)
 
+        summary_paragraph.add_run("\nLow-level label counts:\n").bold = True
+        for label, count in low_label_counts.items():
+            summary_paragraph.add_run(f"{label}: {count}\n")
+
+
+        max_high_label = max(high_label_counts, key=high_label_counts.get)
+        max_low_label = max(low_label_counts, key=low_label_counts.get)
+
+        # Calculate the percentage of occurrence for the high-level label
+        total_high_labels = sum(high_label_counts.values())
+        try:
+            percentage_high_label = (high_label_counts[max_high_label] / total_high_labels) * 100
+        except ZeroDivisionError:
+            percentage_high_label = 0
+
+        # Calculate the percentage of occurrence for the low-level label
+        total_low_labels = sum(low_label_counts.values())
+        try:
+            percentage_low_label = (low_label_counts[max_low_label] / total_low_labels) * 100
+        except ZeroDivisionError:
+            percentage_low_label = 0
+
+
+        # Add summary about the label that occurred the most
+        summary_paragraph.add_run("\nMost Occurred High-level Label:\n").bold = True
+        summary_paragraph.add_run(f"{max_high_label}: {percentage_high_label:.2f}%\n")
+
+        summary_paragraph.add_run("\nMost Occurred Low-level Label:\n").bold = True
+        summary_paragraph.add_run(f"{max_low_label}: {percentage_low_label:.2f}%\n")
+        # Save the document with a new name
+        output_file = io.BytesIO()
+        doc.save(output_file)
+        output_file.seek(0)
+
+
+        # Provide a download link for the output file
+        st.markdown(get_binary_file_downloader_html(output_file, file_label="Download Processed Document"), unsafe_allow_html=True)
+
+
+else:
+    st.error("Wrong Password")

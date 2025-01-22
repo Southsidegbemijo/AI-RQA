@@ -144,23 +144,28 @@ if password_field in ['databacked_123', "rqa_password"]:
         high_label_counts = {label: 0 for label in high_color_dict.keys()}
         low_label_counts = {label: 0 for label in low_color_dict.keys()}
 
-        # Process paragraphs and apply highlights to chosen sentences
-        for paragraph in stqdm(doc.paragraphs, desc="Classifying Sentences..."):
-            
-            sentences = re.split(r'\.\s*', paragraph.text)
-            for sentence in sentences:
-                words = sentence.split()
-                if len(words) > 10:  # Only consider sentences with more than 10 words
-                    chosen_sentence = ' '.join(words)
-                    
-                    prediction = classify(chosen_sentence, MODEL_CHOICE)
+        # Update the main document processing loop
+        for paragraph in stqdm(doc.paragraphs, desc="Classifying Paragraphs..."):
+            # Use regex to match paragraphs starting with "Interviewee:" (case insensitive, allowing spaces)
+            if re.match(r'^\s*interviewee\s*:', paragraph.text, re.IGNORECASE):
+                # Extract the text after "Interviewee:"
+                interview_text = re.sub(r'^\s*interviewee\s*:\s*', '', paragraph.text, flags=re.IGNORECASE)
+                
+                # Only process if there's meaningful content
+                if len(interview_text.split()) > 10:  # Only consider paragraphs with more than 10 words
+                    prediction = classify(interview_text, MODEL_CHOICE)
                     if prediction:
-                        print(prediction)
                         high_label = prediction.get('top level')
                         low_label = prediction.get('label')
                         high_label_counts[high_label] += 1
                         low_label_counts[low_label] += 1
-                        run = paragraph.add_run(chosen_sentence)  # Create a new run for the chosen sentence
+                        
+                        # Clear existing runs in paragraph
+                        for run in paragraph.runs:
+                            run.clear()
+                        
+                        # Add new run with the full text
+                        run = paragraph.add_run("Interviewee: " + interview_text)
                         apply_high_highlight(run, high_label)
                         apply_low_highlight(run, low_label)
 

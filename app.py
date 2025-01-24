@@ -14,13 +14,13 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipe
 
 LABELS = ['Value equation',
  'Credentialing / Quality Assurance Infrastructure',
- 'Finanicial Impact',
+ 'Financial Impact',
  'Health System Characteristics',
  'Clinical utility & efficiency-Provider perspective',
  'Workflow related problems',
  'Provider Characteristics',
  'Training',
- 'Patient/Physican interaction in LUS',
+ 'Patient/Physician interaction in LUS',
  'Imaging modalities in general']
 
 TOP_LEVELS = [
@@ -34,13 +34,13 @@ multi_level_org_char: List[str] = ['Provider Characteristics', "Health System Ch
 multi_level_org_perspect: List[str] = [ "Imaging modalities in general",
                             'Value equation',
                             "Clinical utility & efficiency-Provider perspective",
-                            "Patient/Physican interaction in LUS",
+                            "Patient/Physician interaction in LUS",
                             'Workflow related problems']
 
 impl_sust_infra: List[str] = [
     "Training",
     'Credentialing / Quality Assurance Infrastructure',
-    "Finanicial Impact",
+    "Financial Impact",
 ]
 
 
@@ -107,14 +107,14 @@ THRESHOLD = st.slider('Set a Minimum Threshold For the model Confidence', min_va
 if MODEL_CHOICE=='Distilbert':
     with st.spinner("Loading bert weights..."):
         time.sleep(1)
-        bert_model = pipeline('text-classification', 'eskayML/interview_classifier', tokenizer = AutoTokenizer.from_pretrained('eskayML/interview_classifier'))
+        bert_model = pipeline('text-classification', 'eskayML/old_bert_pytranscripts', tokenizer = AutoTokenizer.from_pretrained('eskayML/old_bert_pytranscripts'))
 
     
     
 elif MODEL_CHOICE=='Electra':
     with st.spinner("Loading electra weights..."):
         time.sleep(1)
-        electra_model = pipeline('text-classification', 'eskayML/interview_electra', tokenizer = AutoTokenizer.from_pretrained('eskayML/interview_electra'))
+        electra_model = pipeline('text-classification', 'eskayML/old_electra_pytranscripts', tokenizer = AutoTokenizer.from_pretrained('eskayML/old_electra_pytranscripts'))
 
 
 def classify(paragraph, MODEL_CHOICE):

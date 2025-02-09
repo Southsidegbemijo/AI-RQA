@@ -31,7 +31,7 @@ TOP_LEVELS = [
 
 
 multi_level_org_char: List[str] = ['Provider Characteristics', "Health System Characteristics"]
-multi_level_org_perspect: List[str] = [ "Imaging modalities in general",
+multi_level_org_perspect: List[str] = ["Imaging modalities in general",
                             'Value equation',
                             "Clinical utility & efficiency-Provider perspective",
                             "Patient/Physician interaction in LUS",
